@@ -1,0 +1,22 @@
+{
+  "name": "hash-code-2016-qualification",
+  "version": "1.0.0",
+  "description": "Hash Code 2016 Qualification Round - Team 'No For No While'",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/hgwood/hash-code-2016-qualification#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hgwood/hash-code-2016-qualification.git"
+  },
+  "bugs": "https://github.com/hgwood/hash-code-2016-qualification/issues",
+  "contributors": [
+    "Germain Potet (https://github.com/gpotet)",
+    "Hugo Wood <hx4.5@free.fr> (https://github.com/hgwood)",
+    "Julien Landuré <julien.landure@gmail.com> (https://github.com/jlandure)",
+    "Pierre Reliquet (https://github.com/PierreReliquet)"
+  ],
+  "scripts": {
+    "start": "node ./index"
+  }
+}
