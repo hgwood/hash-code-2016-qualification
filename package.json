@@ -17,6 +17,7 @@
     "Pierre Reliquet (https://github.com/PierreReliquet)"
   ],
   "scripts": {
-    "start": "node ./index"
+    "start": "node ./index",
+    "lint": "eslint *.js"
   }
 }
