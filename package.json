@@ -19,13 +19,16 @@
   "scripts": {
     "start": "node ./index",
     "lint": "eslint *.js",
-    "test": "mocha *.test.js"
+    "test": "mocha *.test.js",
+    "zip": "node ./zip"
   },
   "dependencies": {
     "lodash": "^4.2.1"
   },
   "devDependencies": {
+    "archiver": "^0.21.0",
     "eslint": "^1.10.3",
+    "glob": "^6.0.4",
     "mocha": "^2.4.5"
   }
 }
