@@ -2,9 +2,9 @@
 
 Hash Code 2016 Qualification Round - Team 'No For No While'
 
-## Tasks
+## Commands
 
-- zip sources for submissions: `npm run zip` or Ctrl+Sift+B in VS Code
+- zip sources for submissions: `npm run zip` or Ctrl+Shift+B in VS Code
   - zip file is created in `./.builds`
 - run linter: `npm run lint` or install eslint plugin for the editor
 - run tests: `npm test` or Ctrl+Shift+T in VS Code
