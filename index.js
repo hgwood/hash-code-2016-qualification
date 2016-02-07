@@ -2,4 +2,4 @@
 
 const problem = require("./read")("./in.txt")
 const solution = require("./solver")(problem)
-require("./write")(solution)
+require("./write")("./out.txt", solution)
