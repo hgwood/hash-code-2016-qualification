@@ -17,8 +17,9 @@ try {
   if (err.code !== "EEXIST") throw err
 }
 
-_.tap(archiver('zip', {}), function (archive) {
-  _.each(glob.sync("!(node_modules)", {}), function (file) {
-    archive.file(file, {name: path.basename(file)})
-  })
-}).finalize().pipe(fs.createWriteStream(dest))
+const files = glob.sync("!(node_modules)", {})
+const archive = archiver('zip')
+_.each(files, file => archive.file(file, {name: path.basename(file)}))
+archive.finalize().pipe(fs.createWriteStream(dest))
+
+console.log(`wrote ${files.length} files to ${dest}`)

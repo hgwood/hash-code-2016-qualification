@@ -34,3 +34,6 @@ node_modules
 
 # Our builds
 .builds/
+
+# Solution files
+*out.txt
