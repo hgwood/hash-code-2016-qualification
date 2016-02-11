@@ -17,9 +17,9 @@ function unparse(solution) {
   // insert write logic here
   // must return an array of lines to write to the output file
   const commands = _.map(solution, function (command) {
-    if (command.command === "load" || command.command === "unload") return `${command.idrone} ${command.command[0].toUpperCase()} ${command.iwarehouse} ${command.itype} ${command.quantity}`
-    if (command.command === "deliver") return `${command.idrone} ${command.command[0].toUpperCase()} ${command.idest} ${command.itype} ${command.quantity}`
-    if (command.command === "wait") return `${command.idrone} ${command.command[0].toUpperCase()} ${command.nturns}`
+    if (command.command === "load" || command.command === "unload") return `${command.drone} ${command.command[0].toUpperCase()} ${command.warehouse} ${command.type} ${command.quantity}`
+    if (command.command === "deliver") return `${command.drone} ${command.command[0].toUpperCase()} ${command.order} ${command.type} ${command.quantity}`
+    if (command.command === "wait") return `${command.drone} ${command.command[0].toUpperCase()} ${command.nturns}`
   })
   return [commands.length, ...commands]
 }
