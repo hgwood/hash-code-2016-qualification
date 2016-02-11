@@ -20,7 +20,8 @@
     "start": "node ./index",
     "lint": "eslint *.js",
     "test": "mocha *.test.js",
-    "zip": "node ./zip"
+    "zip": "node ./zip",
+    "upload": "node ./upload"
   },
   "dependencies": {
     "debug": "^2.2.0",
@@ -30,6 +31,7 @@
     "archiver": "^0.21.0",
     "eslint": "^1.10.3",
     "glob": "^6.0.4",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "request-promise": "^2.0.0"
   }
 }
