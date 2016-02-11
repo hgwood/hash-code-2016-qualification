@@ -25,15 +25,25 @@ module.exports = function solve(problem) {
   return commands
 }
 
-function findWarehouseForProduct(warehouses, type) {
-  return _.findIndex(warehouses, function (warehouse) {
-    return warehouse.products[type] > 0
-  })
-}
+// function findWarehouseForProduct(warehouses, type) {
+//   return _.findIndex(warehouses, function (warehouse) {
+//     return warehouse.products[type] > 0
+//   })
+// }
+
+// function findClosestWarehouseForProduct(warehouses, drone, type) {
+//   const sortedWarehouses = _.sortBy(warehouses, (warehouse) => distance(drone, warehouse))
+//   return findWarehouseForProduct(sortedWarehouses, type)
+// }
 
 function findClosestWarehouseForProduct(warehouses, drone, type) {
-  const sortedWarehouses = _.sortBy(warehouses, (warehouse) => distance(drone, warehouse))
-  return findWarehouseForProduct(sortedWarehouses, type)
+  return _(warehouses)
+    .map((warehouse, index) => _.assign(warehouse, {id: index}))
+    .filter((warehouse) => warehouse.products[type] > 0)
+    .map(warehouse => _.assign(warehouse, {distance: distance(drone, warehouse)}))
+    .sortBy("distance")
+    // .tap(value => debug(_.map(_.take(value, 2), "distance")))
+    .first().id
 }
 
 function distance(origin, destination) {
