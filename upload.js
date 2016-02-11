@@ -12,8 +12,6 @@ module.exports = submit;
 //uploadFile("/out.txt")
 
 function submit(sourceFile, submissionFile) {
-  console.log(sourceFile, submissionFile);
-  return ;
   Promise.join(
     uploadFile(sourceFile),
     uploadFile(submissionFile),
