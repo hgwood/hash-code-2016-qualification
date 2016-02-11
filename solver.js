@@ -5,8 +5,9 @@ const _ = require("lodash")
 
 module.exports = function solve(problem) {
   const commands = []
+  debug(problem.header)
   _.each(problem.orders, function (order, iorder) {
-    const drone = iorder % problem.ndrones
+    const drone = iorder % problem.header.ndrones
     _.each(order.types, function (type) {
       const warehouse = findWarehouseForProduct(problem, type)
       commands.push({command: "load", drone, warehouse, type, quantity: 1})
