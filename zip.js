@@ -8,7 +8,9 @@ const path = require("path")
 const exec = require("child_process").execSync
 const upload = require("./upload")
 
-const newCommit = exec("git add *.js && git commit -m 'tayo!'", {encoding: "utf8"})
+try {
+  exec("git add *.js && git commit -m 'tayo!'", {encoding: "utf8"})
+} catch (err) {}
 const sha1 = exec("git rev-parse HEAD", {encoding: "utf8"}).trim()
 const date = new Date().toISOString().replace(/:/g, "-")
 const dest = `./.builds/submission-sources-${date}-${sha1}.zip`
