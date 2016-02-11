@@ -5,7 +5,7 @@ const fs = require('fs');
 const Promise = require('bluebird');
 
 //TODO change to current problem
-const authorizationToken = 'Bearer ya29.hQKIOHxNahVv583aCFkvKX5nh4GNvhtPaIWptmlrAwDNOKW0pFNusprYB7wc0MahYmGBXA';
+const authorizationToken = 'Bearer ya29.hQKL-x3cbfW9WHrjdGisQeXOXktqy9KqmcYYdGwJq0TbjechKZQ0xp9EySc4kZBVjujE0g';
 const dataset = 6473350549340160; //busy day
 
 module.exports = submit;
