@@ -11,6 +11,8 @@ const dataset = 6473350549340160; //busy day
 module.exports = submit;
 
 function submit(sourceFile, submissionFile) {
+  console.log(sourceFile, submissionFile);
+  return ;
   Promise.join(
     uploadFile(sourceFile),
     uploadFile(submissionFile),
