@@ -24,3 +24,10 @@ function findWarehouseForProduct(problem, type) {
   })
 }
 
+function findClosestWarehouseForProduct(problem, type) {
+
+}
+
+function distance(origin, destination) {
+  return Math.sqrt(Math.pow(destination.x - origin.x, 2) + Math.pow(destination.y - origin.y, 2))
+}
