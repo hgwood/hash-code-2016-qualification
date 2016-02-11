@@ -27,6 +27,6 @@ _.each(files, file => archive.file(file, {name: path.basename(file)}))
 archive.finalize().pipe(fs.createWriteStream(dest))
 
 if(process.argv[2] === "upload") {
-  upload("/out.txt", dest);
+  upload("/out.txt", "/"+dest);
 }
 console.log(`wrote ${files.length} files to ${dest}`)
