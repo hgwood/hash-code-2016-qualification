@@ -26,9 +26,7 @@ const archive = archiver('zip')
 _.each(files, file => archive.file(file, {name: path.basename(file)}))
 archive.finalize().pipe(fs.createWriteStream(dest))
 
-console.log(process.argv);
 if(process.argv[2] === "upload") {
-
   upload("out.txt", dest);
 }
 console.log(`wrote ${files.length} files to ${dest}`)
