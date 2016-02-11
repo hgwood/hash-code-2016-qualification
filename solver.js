@@ -12,9 +12,9 @@ module.exports = function solve(problem) {
 
     _.each(order.types, function (type) {
       const warehouse = findClosestWarehouseForProduct(problem.warehouses, drones[drone], type)
-      const distanceToRun = distance(problem.warehouses[warehouse], order) + 1000;
-      if(drones[drone].remainingTurns < distanceToRun) return false;
-      drones[drone].remainingTurns -= distanceToRun + 1
+      const turnsToDelivery = Math.ceil(distance(problem.warehouses[warehouse], order)) + Math.ceil(distance(drone, problem.warehouses[warehouse])) + 2
+      if(drones[drone].remainingTurns < turnsToDelivery) return false;
+      drones[drone].remainingTurns -= turnsToDelivery
       commands.push({command: "load", drone, warehouse, type, quantity: 1})
       problem.warehouses[warehouse].products[type] -= 1
       commands.push({command: "deliver", drone, order: iorder, type, quantity: 1})
