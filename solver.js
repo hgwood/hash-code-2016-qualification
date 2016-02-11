@@ -10,16 +10,30 @@ module.exports = function solve(problem) {
   _.each(problem.orders, function (order, iorder) {
     const drone = iorder % problem.header.ndrones
 
-    _.each(order.types, function (type) {
-      const warehouse = findClosestWarehouseForProduct(problem.warehouses, drones[drone], type)
-      const distanceToRun = distance(problem.warehouses[warehouse], order) + 1000;
-      if(drones[drone].remainingTurns < distanceToRun) return false;
-      drones[drone].remainingTurns -= distanceToRun + 1
-      commands.push({command: "load", drone, warehouse, type, quantity: 1})
-      problem.warehouses[warehouse].products[type] -= 1
-      commands.push({command: "deliver", drone, order: iorder, type, quantity: 1})
-      drones[drone] = order
+    let warehouse
+
+    _.each(order.quantities, function (quantity, product) {
+      if (!quantity) return
+
+      if (!warehouse) {
+        warehouse = findClosestWarehouseForProduct(problem.warehouses, drones[drone], product);
+        let distanceToRun = distance(problem.warehouses[warehouse], order) + 1000;
+        if (drones[drone].remainingTurns < distanceToRun) return false;
+        drones[drone].remainingTurns -= distanceToRun + 1
+      }
+
+      var shippableQuantity = getShippableQuantity(problem, problem.warehouses[warehouse], product, quantity)
+      if (!shippableQuantity) return
+
+      commands.push({ command: "load", drone, warehouse, type: product, quantity: shippableQuantity })
+      problem.warehouses[warehouse].products[product] -= shippableQuantity
+
+      commands.push({ command: "deliver", drone, order: iorder, type: product, quantity: shippableQuantity })
+
+      order.quantities[product] -= shippableQuantity
     })
+
+
   })
   return commands
 }
@@ -45,6 +59,21 @@ function findClosestWarehouseForProduct(warehouses, drone, type) {
     .first().id
 }
 
+function findShippableProductForGivenWarehouse(problem, warehouse, drone, order) {
+  return _.findIndex(order.types, (type) => isProductAvailable(type) && (drone.load + problem.weights[type] <= problem.header.maxLoad))
+}
+
 function distance(origin, destination) {
   return Math.sqrt(Math.pow(destination.x - origin.x, 2) + Math.pow(destination.y - origin.y, 2))
+}
+
+function isProductAvailable(warehouse, product) {
+  return warehouse.products[product] > 0
+}
+
+function getShippableQuantity(problem, warehouse, product, quantity) {
+  var weight = problem.weights[product]
+  var maxLoad = problem.header.maxLoad
+  // console.log(Math.floor(maxLoad / weight), warehouse.products[product], quantity)
+  return _.min([Math.floor(maxLoad / weight), warehouse.products[product], quantity])
 }
