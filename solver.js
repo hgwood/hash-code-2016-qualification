@@ -7,21 +7,32 @@ module.exports = function solve(problem) {
   const commands = []
   const drones = _.times(problem.header.ndrones, (id) => ({id, x: 0, y: 0, remainingTurns: problem.header.nturns, load: 0, queue: 0}))
   _.each(problem.orders, function (order, iorder) {
-    _.each(order.types, function (type) {
-      // debug(order)
-      const warehousesThatHaveThisProductType = warehousesForProductType(problem.warehouses, type)
-      const shortestCombination = shortestDeliveryPaths(order, drones, warehousesThatHaveThisProductType)
-      const drone = shortestCombination.drone
-      const warehouse = shortestCombination.warehouse
-      const numberOfTurnsForDelivery = shortestCombination.numberOfTurnsForDelivery
-      const turnsToDelivery = shortestCombination.turnsToDelivery
-      drone.remainingTurns -= numberOfTurnsForDelivery
-      commands.push({command: "load", drone: drone.id, warehouse: warehouse.id, type, quantity: 1})
-      warehouse.products[type] -= 1
-      commands.push({command: "deliver", drone: drone.id, order: iorder, type, quantity: 1})
-      drone.x = order.x
-      drone.y = order.y
-      drone.queue = turnsToDelivery
+    _.each(order.quantities, function (quantity, type) {
+      if(!quantity) return
+      while(quantity > 0) {
+        const commandInProgress = []
+        // debug(order)
+        const warehousesThatHaveThisProductType = warehousesForProductType(problem.warehouses, type)
+        const shortestCombination = shortestDeliveryPaths(order, drones, warehousesThatHaveThisProductType)
+        const drone = shortestCombination.drone
+        const warehouse = shortestCombination.warehouse
+        const numberOfTurnsForDelivery = shortestCombination.numberOfTurnsForDelivery
+        const turnsToDelivery = shortestCombination.turnsToDelivery
+        drone.remainingTurns -= numberOfTurnsForDelivery
+        const quantitTaken = _.min([quantity, Math.floor(problem.header.maxLoad / problem.weights[type]), warehouse.products[type]])
+        if(!quantitTaken) return
+        commands.push({command: "load", drone: drone.id, warehouse: warehouse.id, type, quantity: quantitTaken})
+        commandInProgress.push({command: "load", drone: drone.id, warehouse: warehouse.id, type, quantity: quantitTaken})
+        warehouse.products[type] -= quantitTaken
+        commands.push({command: "deliver", drone: drone.id, order: iorder, type, quantity: quantitTaken})
+        drone.x = order.x
+        drone.y = order.y
+        drone.queue = turnsToDelivery
+        quantity -= quantitTaken
+      }
+      // _.each(commandInProgress, function(command) {
+
+      // }
     })
   })
   return commands
