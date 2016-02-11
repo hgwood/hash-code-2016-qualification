@@ -15,17 +15,17 @@ function readLines(path) {
 }
 
 function parse(lines) {
-  const header = parseLineOfInts(lines[0], "nrows", "ncols", "ndrones", "nturns", "maxLoad")
+  const header = parseLineOfInts(lines[0], ["nrows", "ncols", "ndrones", "nturns", "maxLoad"])
   const weights = _.map(lines[2].split(" "), _.ary(parseInt, 1))
   const nwarehouses = parseInt(lines[3])
   const warehouses = _.times(nwarehouses, function (i) {
-    const warehouse = parseLineOfInts(lines[3 + i * 2 + 1], "x", "y")
+    const warehouse = parseLineOfInts(lines[3 + i * 2 + 1], ["x", "y"])
     warehouse.products = _.map(lines[3 + i * 2 + 2].split(" "), _.ary(parseInt, 1))
     return warehouse
   })
   const indexOfFirstOrder = 3 + nwarehouses * 2 + 1
   const orders = _.times(parseInt(lines[indexOfFirstOrder]), function (i) {
-    const order = parseLineOfInts(lines[indexOfFirstOrder + i * 3 + 1], "x", "y")
+    const order = parseLineOfInts(lines[indexOfFirstOrder + i * 3 + 1], ["x", "y"])
     order.nitems = parseInt(lines[indexOfFirstOrder + i * 3 + 2])
     order.types = _.map(lines[indexOfFirstOrder + i * 3 + 3].split(" "),  _.ary(parseInt, 1))
     order.quantities = new Array(weights.length).fill(0)
