@@ -6,7 +6,9 @@ const archiver = require("archiver")
 const glob = require("glob")
 const path = require("path")
 const exec = require("child_process").execSync
+const upload = require("./upload")
 
+const newCommit = exec("git add *.js && git commit -m 'tayo!'", {encoding: "utf8"})
 const sha1 = exec("git rev-parse HEAD", {encoding: "utf8"}).trim()
 const date = new Date().toISOString().replace(/:/g, "-")
 const dest = `./.builds/submission-sources-${date}-${sha1}.zip`
@@ -22,4 +24,7 @@ const archive = archiver('zip')
 _.each(files, file => archive.file(file, {name: path.basename(file)}))
 archive.finalize().pipe(fs.createWriteStream(dest))
 
+if(process.argv[3] === "upload") {
+  upload("out.txt", dest);
+}
 console.log(`wrote ${files.length} files to ${dest}`)
