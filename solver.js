@@ -5,7 +5,7 @@ const _ = require("lodash")
 
 module.exports = function solve(problem) {
   const commands = []
-  const drones = _.times(problem.header.ndrones, (id) => ({id, x: 0, y: 0, remainingTurns: problem.header.nturns, load: 0, available: true}))
+  const drones = _.times(problem.header.ndrones, (id) => ({id, x: 0, y: 0, remainingTurns: problem.header.nturns, load: 0, queue: 0}))
   _.each(problem.orders, function (order, iorder) {
     _.each(order.types, function (type) {
       // debug(order)
@@ -13,13 +13,15 @@ module.exports = function solve(problem) {
       const shortestCombination = shortestDeliveryPaths(order, drones, warehousesThatHaveThisProductType)
       const drone = shortestCombination.drone
       const warehouse = shortestCombination.warehouse
-      const numberOfTurns = shortestCombination.numberOfTurns
-      drone.remainingTurns -= numberOfTurns
+      const numberOfTurnsForDelivery = shortestCombination.numberOfTurnsForDelivery
+      const turnsToDelivery = shortestCombination.turnsToDelivery
+      drone.remainingTurns -= numberOfTurnsForDelivery
       commands.push({command: "load", drone: drone.id, warehouse: warehouse.id, type, quantity: 1})
       warehouse.products[type] -= 1
       commands.push({command: "deliver", drone: drone.id, order: iorder, type, quantity: 1})
       drone.x = order.x
       drone.y = order.y
+      drone.queue = turnsToDelivery
     })
   })
   return commands
@@ -28,15 +30,16 @@ module.exports = function solve(problem) {
 function shortestDeliveryPaths(order, drones, warehouses) {
   const all = allDeliveryPaths(order, drones, warehouses)
   // debug(warehouses)
-  return _.minBy(all, "numberOfTurns")
+  return _.minBy(all, "turnsToDelivery")
 }
 
 function allDeliveryPaths(order, drones, warehouses) {
   return _.flatMap(drones, function (drone) {
     return _.compact(_.map(warehouses, function (warehouse) {
-      const numberOfTurns = numberOfTurnsRequiredToDeliver(order, drone, warehouse)
-      if (drone.remainingTurns < numberOfTurns) return null
-      else return {drone, warehouse, numberOfTurns}
+      const numberOfTurnsForDelivery = numberOfTurnsRequiredToDeliver(order, drone, warehouse)
+      const turnsToDelivery = numberOfTurnsForDelivery + drone.queue
+      if (drone.remainingTurns < numberOfTurnsForDelivery) return null
+      else return {drone, warehouse, numberOfTurnsForDelivery, turnsToDelivery}
     }))
   })
 }
