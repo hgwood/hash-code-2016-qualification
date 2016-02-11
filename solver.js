@@ -14,7 +14,6 @@ module.exports = function solve(problem) {
       const warehouse = findClosestWarehouseForProduct(problem.warehouses, drones[drone], type)
       const distanceToRun = distance(problem.warehouses[warehouse], order) + 1000;
       if(drones[drone].remainingTurns < distanceToRun) return false;
-
       drones[drone].remainingTurns -= distanceToRun + 1
       commands.push({command: "load", drone, warehouse, type, quantity: 1})
       problem.warehouses[warehouse].products[type] -= 1
