@@ -78,9 +78,3 @@ function uploadFile(file) {
     console.log(err)
   });
 }
-
-
-submit(
-  '/.builds/submission-sources-2016-02-10T14-12-10.841Z-2492aad05149e692b514774c9d0a00aa8122278f.zip',
-  '/.builds/submission-sources-2016-02-10T14-12-10.841Z-2492aad05149e692b514774c9d0a00aa8122278f.zip'
-  )
