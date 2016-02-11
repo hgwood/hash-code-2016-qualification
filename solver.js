@@ -5,35 +5,35 @@ const _ = require("lodash")
 
 module.exports = function solve(problem) {
   const commands = []
-
-  const drones = new Array(problem.header.ndrones).fill(problem.header.nturns);
+  const drones = _.times(problem.header.ndrones, () => ({x: 0, y: 0, remainingTurns: problem.header.nturns, load: 0}))
   debug(problem.header)
   _.each(problem.orders, function (order, iorder) {
     const drone = iorder % problem.header.ndrones
 
     _.each(order.types, function (type) {
-      const warehouse = findWarehouseForProduct(problem, type)
+      const warehouse = findClosestWarehouseForProduct(problem.warehouses, drones[drone], type)
       const distanceToRun = distance(problem.warehouses[warehouse], order) + 1000;
-      if(drones[drone] < distanceToRun) return commands;
+      if(drones[drone].remainingTurns < distanceToRun) return false;
 
+      drones[drone].remainingTurns -= distanceToRun + 1
       commands.push({command: "load", drone, warehouse, type, quantity: 1})
       problem.warehouses[warehouse].products[type] -= 1
       commands.push({command: "deliver", drone, order: iorder, type, quantity: 1})
-      drones[drone] -= distanceToRun + 1
-      console.log(drone, "->", drones[drone]);
+      drones[drone] = order
     })
   })
   return commands
 }
 
-function findWarehouseForProduct(problem, type) {
-  return _.findIndex(problem.warehouses, function (warehouse) {
+function findWarehouseForProduct(warehouses, type) {
+  return _.findIndex(warehouses, function (warehouse) {
     return warehouse.products[type] > 0
   })
 }
 
-function findClosestWarehouseForProduct(problem, type) {
-
+function findClosestWarehouseForProduct(warehouses, drone, type) {
+  const sortedWarehouses = _.sortBy(warehouses, (warehouse) => distance(drone, warehouse))
+  return findWarehouseForProduct(sortedWarehouses, type)
 }
 
 function distance(origin, destination) {
