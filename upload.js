@@ -9,6 +9,7 @@ const authorizationToken = 'Bearer ya29.hQKOQ9J8IepfUsMwaOOD03zkJ8zDvi0CYpr9jOmg
 const dataset = 6473350549340160; //busy day
 
 module.exports = submit;
+//uploadFile("/out.txt")
 
 function submit(sourceFile, submissionFile) {
   console.log(sourceFile, submissionFile);
