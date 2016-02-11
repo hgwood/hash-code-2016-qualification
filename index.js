@@ -2,6 +2,6 @@
 
 process.env.DEBUG = "*"
 
-const problem = require("./read")("./busy_day.in.txt")
+const problem = require("./read")("./mother_of_all_warehouses.in.txt")
 const solution = require("./solver")(problem)
-require("./write")("./out.txt", solution)
+require("./write")("./mother_of_all_warehouses.out.txt", solution)
