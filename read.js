@@ -15,7 +15,29 @@ function readLines(path) {
 }
 
 function parse(lines) {
-  // insert read logic here
+  const header = parseLineOfInts(lines[0], "nrows", "ncols", "ndrones", "nturns", "maxLoad")
+  const weights = _(lines[2].split(" ").map(_.ary(parseInt, 1)))
+  const nwarehouses = parseInt(lines[3])
+  const warehouses = _.times(nwarehouses, function (i) {
+    const warehouse = parseLineOfInts(lines[3 + i * 2 + 1], "x", "y")
+    warehouse.products = _(lines[3 + i * 2 + 2].split(" ").map(_.ary(parseInt, 1)))
+    return warehouse
+  })
+  const indexOfFirstOrder = 3 + nwarehouses * 2 + 1
+  const orders = _.times(parseInt(lines[indexOfFirstOrder]), function (i) {
+    const order = parseLineOfInts(lines[indexOfFirstOrder + i * 3 + 1], "x", "y")
+    order.nitems = parseInt(lines[indexOfFirstOrder + i * 3 + 2])
+    order.types = parseInt(lines[indexOfFirstOrder + i * 3 + 3])
+    order.quantities = new Array(weights.length).fill(0)
+    _.each(order.types, function (type) {
+      order.quantities[type] += 1
+    })
+  })
+  return {header, weights, warehouses, orders}
+}
+
+function parseLineOfInts(line, keys) {
+  return _.object(keys, _.map(line.split(" "), _.ary(parseInt, 1)));
 }
 
 module.exports.parse = parse
