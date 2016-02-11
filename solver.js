@@ -5,23 +5,54 @@ const _ = require("lodash")
 
 module.exports = function solve(problem) {
   const commands = []
-  const drones = _.times(problem.header.ndrones, () => ({x: 0, y: 0, remainingTurns: problem.header.nturns, load: 0}))
-  debug(problem.header)
+  const drones = _.times(problem.header.ndrones, (id) => ({id, x: 0, y: 0, remainingTurns: problem.header.nturns, load: 0, available: true}))
   _.each(problem.orders, function (order, iorder) {
-    const drone = iorder % problem.header.ndrones
-
     _.each(order.types, function (type) {
-      const warehouse = findClosestWarehouseForProduct(problem.warehouses, drones[drone], type)
-      const turnsToDelivery = Math.ceil(distance(problem.warehouses[warehouse], order)) + Math.ceil(distance(drone, problem.warehouses[warehouse])) + 2
-      if(drones[drone].remainingTurns < turnsToDelivery) return false;
-      drones[drone].remainingTurns -= turnsToDelivery
-      commands.push({command: "load", drone, warehouse, type, quantity: 1})
-      problem.warehouses[warehouse].products[type] -= 1
-      commands.push({command: "deliver", drone, order: iorder, type, quantity: 1})
-      drones[drone] = order
+      // debug(order)
+      const warehousesThatHaveThisProductType = warehousesForProductType(problem.warehouses, type)
+      const shortestCombination = shortestDeliveryPaths(order, drones, warehousesThatHaveThisProductType)
+      const drone = shortestCombination.drone
+      const warehouse = shortestCombination.warehouse
+      const numberOfTurns = shortestCombination.numberOfTurns
+      drone.remainingTurns -= numberOfTurns
+      commands.push({command: "load", drone: drone.id, warehouse: warehouse.id, type, quantity: 1})
+      warehouse.products[type] -= 1
+      commands.push({command: "deliver", drone: drone.id, order: iorder, type, quantity: 1})
+      drone.x = order.x
+      drone.y = order.y
     })
   })
   return commands
+}
+
+function shortestDeliveryPaths(order, drones, warehouses) {
+  const all = allDeliveryPaths(order, drones, warehouses)
+  // debug(warehouses)
+  return _.minBy(all, "numberOfTurns")
+}
+
+function allDeliveryPaths(order, drones, warehouses) {
+  return _.flatMap(drones, function (drone) {
+    return _.compact(_.map(warehouses, function (warehouse) {
+      const numberOfTurns = numberOfTurnsRequiredToDeliver(order, drone, warehouse)
+      if (drone.remainingTurns < numberOfTurns) return null
+      else return {drone, warehouse, numberOfTurns}
+    }))
+  })
+}
+
+function numberOfTurnsRequiredToDeliver(order, drone, warehouse) {
+  return Math.ceil(distance(warehouse, order)) + Math.ceil(distance(drone, warehouse)) + 2
+}
+
+function warehousesForProductType(warehouses, type) {
+  // debug("type", type)
+  // debug("warehouse length", warehouses.length)
+  // debug("warehouse find", _.find(warehouse => warehouse.products[type]))
+  return _(warehouses)
+    .map((warehouse, index) => _.assign(warehouse, {id: index}))
+    .filter(warehouse => warehouse.products[type] > 0)
+    .value()
 }
 
 // function findWarehouseForProduct(warehouses, type) {
