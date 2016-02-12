@@ -1,82 +1,74 @@
 "use strict"
 
-const rp = require('request-promise');
-const fs = require('fs');
-const Promise = require('bluebird');
+const _ = require("lodash")
+const debug = require("debug")("upload")
+const fs = require("fs")
+const joi = require("joi")
+const request = require("request-promise")
 
-//TODO change to current problem
-//for busyday
-const authorizationToken = 'Bearer ya29.hQKL-x3cbfW9WHrjdGisQeXOXktqy9KqmcYYdGwJq0TbjechKZQ0xp9EySc4kZBVjujE0g';
-const dataset = 6473350549340160; //busy day
-
-module.exports = submit;
-//uploadFile("/out.txt")
-
-function submit(sourceFile, submissionFile) {
-  Promise.join(
-    uploadFile(sourceFile),
-    uploadFile(submissionFile),
-    function(sourceBlob, submissionBlob) {
-      let options = {
-        method: 'POST',
-        uri: 'https://hashcode-judge.appspot.com/_ah/api/judge/v1/submissions',
-        headers: {
-          'Authorization': authorizationToken
-        },
-        //json: true, // Automatically parses the JSON string in the response
-        qs: { //query string
-          dataSet: dataset,
-          sourcesBlobKey: sourceBlob,
-          submissionBlobKey: submissionBlob
-        },
-        resolveWithFullResponse: true
-      };
-
-      return rp.post(options)
-      .then(function(response) {
-        //console.log(response.statusCode);
-        let data = JSON.parse(response.body);
-        console.log('upload done for dataset %s and team %s', data.dataSet.name, data.teamId);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
-    });
+const createUrlUri = "https://hashcode-judge.appspot.com/_ah/api/judge/v1/upload/createUrl"
+const submitUri = "https://hashcode-judge.appspot.com/_ah/api/judge/v1/submissions"
+const authorizationHeader = {"Authorization": "Bearer ya29.hgI_shO08rI0OQZi4tVvJwUBdOnbwOJdfjExAce_Ron4KoLpFy2yPFLrinUn28ZZlMzO8Q"}
+const dataSets = {
+  busyDay: 4570104243159040,
+  motherOfAllWarehouses: 6716350940577792,
+  redundancy: 5272254355079168,
 }
 
-function uploadFile(file) {
-  let options = {
-    uri: 'https://hashcode-judge.appspot.com/_ah/api/judge/v1/upload/createUrl',
-    headers: {
-      'Authorization': authorizationToken
-    },
-    json: true // Automatically parses the JSON string in the response
-  };
-  return rp(options)
-  .then(function(data) {
-    console.log('Need to upload to url %s', data.value);
-    return data.value;
+function* submitSolution(solution) {
+  const solutionSchema = joi.object().min(2)
+    .keys(_.mapValues(dataSets, _.constant(joi.string())))
+    .keys({sources: joi.string().required()})
+  joi.assert(solution, solutionSchema, "invalid solution parameters")
+  
+  const blobKeys = yield _.mapValues(solution, upload)
+  const solutionBlobKeys = _.omit(blobKeys, "sources")
+  return yield _.mapValues(solutionBlobKeys, function (blobKey, dataSetName) {
+    debug(`submitting data set ${dataSetName} (key: ${shorten(blobKey)}`)
+    return submit(dataSets[dataSetName], blobKey, blobKeys.sources)
   })
-  .then(function(uploadSourceUrl) {
-    let formData = {
-      file: fs.createReadStream(__dirname + file),
-    };
-    let options = {
-      method: 'POST',
-      uri: uploadSourceUrl,
-      formData: formData,
-      headers: {
-        'Authorization': authorizationToken
-      },
-      json: true
-    };
-    return rp.post(options);
+}
+
+function* upload(filePath) {
+  const uploadUri = yield createUploadUri()
+  debug(`uploading ${filePath} to ${shorten(uploadUri)}`)
+  const formData = {file: fs.createReadStream(filePath)}
+  const responseBody = yield request({
+    method: "POST", 
+    uri: uploadUri, 
+    formData, 
+    json: true})
+  const blobKey = responseBody.file[0]
+  debug(`file ${filePath} uploaded (key: ${shorten(blobKey)})`)
+  return blobKey
+}
+
+function* createUploadUri() {
+  const response = yield request({
+    method: "GET", 
+    uri: createUrlUri, 
+    json: true})
+  return response.value
+}
+
+function* submit(dataSet, submissionBlobKey, sourcesBlobKey) {
+  const queryParameters = {dataSet, submissionBlobKey, sourcesBlobKey}
+  return yield request({
+    method: "POST", 
+    uri: submitUri, 
+    headers: authorizationHeader, 
+    qs: queryParameters
   })
-  .then(function (data) {
-    //console.log('Upload done to blob %s', data.file);
-    return data.file[0];
-  })
-  .catch(function (err) {
-    console.log(err)
-  });
+}
+
+function shorten(str) {
+  return _(str).slice(0, 20).join("") + "..."
+}
+
+if (module === require.main) {
+  const co = require("co")
+  const explode = err => process.nextTick(() => { throw err })
+  const solution = _(process.argv).drop(2).chunk(2).fromPairs().value()
+  debug("solution", solution)
+  co(submitSolution(solution)).catch(explode)
 }
