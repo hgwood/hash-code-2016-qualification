@@ -9,3 +9,14 @@ Hash Code 2016 Qualification Round - Team 'No For No While'
 - run linter: `npm run lint` or install eslint plugin for the editor
 - run tests: `npm test` or Ctrl+Shift+T in VS Code
 - run solver: `npm start` or F5 in VS Code
+
+## Rex
+
+- Parse line to object of ints
+- Parse line to array of ints
+- Asserts before write
+- Asserts after read
+- Other inline asserts, they're shorter to write than tests
+- Smaller functions
+- Args to npm start to choose input files
+- Builds in separate folders with corresponding output files
