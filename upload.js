@@ -20,7 +20,7 @@ function* submitSolution(solution) {
     .keys(_.mapValues(dataSets, _.constant(joi.string())))
     .keys({sources: joi.string().required()})
   joi.assert(solution, solutionSchema, "invalid solution parameters")
-  
+
   const blobKeys = yield _.mapValues(solution, upload)
   const solutionBlobKeys = _.omit(blobKeys, "sources")
   return yield _.mapValues(solutionBlobKeys, function (blobKey, dataSetName) {
@@ -34,9 +34,9 @@ function* upload(filePath) {
   debug(`uploading ${filePath} to ${shorten(uploadUri)}`)
   const formData = {file: fs.createReadStream(filePath)}
   const responseBody = yield request({
-    method: "POST", 
-    uri: uploadUri, 
-    formData, 
+    method: "POST",
+    uri: uploadUri,
+    formData,
     json: true})
   const blobKey = responseBody.file[0]
   debug(`file ${filePath} uploaded (key: ${shorten(blobKey)})`)
@@ -45,8 +45,8 @@ function* upload(filePath) {
 
 function* createUploadUri() {
   const response = yield request({
-    method: "GET", 
-    uri: createUrlUri, 
+    method: "GET",
+    uri: createUrlUri,
     json: true})
   return response.value
 }
@@ -54,9 +54,9 @@ function* createUploadUri() {
 function* submit(dataSet, submissionBlobKey, sourcesBlobKey) {
   const queryParameters = {dataSet, submissionBlobKey, sourcesBlobKey}
   return yield request({
-    method: "POST", 
-    uri: submitUri, 
-    headers: authorizationHeader, 
+    method: "POST",
+    uri: submitUri,
+    headers: authorizationHeader,
     qs: queryParameters
   })
 }
