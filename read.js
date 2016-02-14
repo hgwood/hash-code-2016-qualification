@@ -26,6 +26,7 @@ function parse(lines) {
   const indexOfFirstOrder = 3 + nwarehouses * 2 + 1
   const orders = _.times(parseInt(lines[indexOfFirstOrder]), function (i) {
     const order = parseLineOfInts(lines[indexOfFirstOrder + i * 3 + 1], ["x", "y"])
+    order.id = i;
     order.nitems = parseInt(lines[indexOfFirstOrder + i * 3 + 2])
     order.types = _.map(lines[indexOfFirstOrder + i * 3 + 3].split(" "),  _.ary(parseInt, 1))
     order.quantities = new Array(weights.length).fill(0)
